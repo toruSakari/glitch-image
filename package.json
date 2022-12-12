@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "html glitch image custom element",
   "main": "dist/index.min.js",
+  "browser": "dist/index.min.js",
   "files": [
     "dist/"
   ],

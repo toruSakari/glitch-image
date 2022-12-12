@@ -12,7 +12,7 @@ module.exports = {
       type: 'umd',
     },
     path: path.resolve(__dirname, process.env === 'development' ? 'src/sample' : 'dist'),
-    filename: 'index.min.js',
+    filename: 'glitch-image.min.js',
   },
   devServer: {
     static: {

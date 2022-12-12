@@ -29,7 +29,7 @@ class GlitchImageComponent extends HTMLElement {
    */
   private initialized() {
     const canvas = document.createElement('canvas')
-    this.attachShadow({ mode: 'open' });
+    this.attachShadow({ mode: 'open' })
     this._glitchImage = new GlitchImage({
       canvas,
       src: this._src,

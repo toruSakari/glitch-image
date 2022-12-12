@@ -1,30 +1,11 @@
+import { GlitchImageProps, GlitchImageTypes } from '@/types/GlitchImage'
 
-type GlitchImageTypes = {
-  canvas: HTMLCanvasElement
-  src: string
-  disabledNoise: boolean
-  auto: boolean
-  noise: boolean
-  background: string
-  ctx: CanvasRenderingContext2D
-  img: HTMLImageElement | null
-  prevTime: number
-  glitchLinePos: {
-    x: number,
-    y: number
-  }
-}
-
-type GlitchImageProps = Pick<
-  GlitchImageTypes,
-  'canvas' | 'src' | 'disabledNoise' | 'auto' | 'background'
-  >
-
-const defaultColorOption = {
+const DEFAULT_COLOR_OPTIONS = {
   rOffset: 0,
   bOffset: 0,
   gOffset: 0
 }
+const GLITCH_LINE_SECOND = 200
 
 export default class GlitchImage {
   private _canvas: GlitchImageTypes['canvas']
@@ -42,7 +23,7 @@ export default class GlitchImage {
     this._src = src
     //親要素の幅に合わせる。
     this._auto = auto
-    this._noise = disabledNoise
+    this._noise = disabledNoise ? false : true
     this._ctx = this._canvas.getContext('2d') as CanvasRenderingContext2D
     this._background = background
     this._img = null
@@ -50,6 +31,9 @@ export default class GlitchImage {
     this._glitchLinePos = this.setGlitchLinePos()
   }
 
+  /**
+   * png、jpgの読み込み
+   */
   private loadImg(src: string): Promise<HTMLImageElement> {
     return new Promise(resolve => {
       const img = new Image()
@@ -58,6 +42,9 @@ export default class GlitchImage {
     })
   }
 
+  /**
+   * svgのドキュメントを取得
+   */
   private fetchSvg(): Promise<HTMLElement> {
     return new Promise(resolve => {
       const xhr = new XMLHttpRequest()
@@ -98,7 +85,7 @@ export default class GlitchImage {
   /**
    * 画像のrgbの値を変更した画像を返す。
    */
-  private createRgbImage(x: number, y: number, options:typeof defaultColorOption = defaultColorOption) {
+  private createRgbImage(x: number, y: number, options:typeof DEFAULT_COLOR_OPTIONS = DEFAULT_COLOR_OPTIONS) {
     const { rOffset, gOffset, bOffset } = options
     const canvas = this._canvas
     const ctx = this._ctx
@@ -156,12 +143,11 @@ export default class GlitchImage {
   private rect(callback: number = 0) {
 
     this.setCanvasSize()
-    const glitchLineSecond = 200
 
     this._ctx.fillStyle = this._background
     this._ctx.fillRect(0, 0, this._canvas.width, this._canvas.height)
 
-    if (Math.round(callback) % glitchLineSecond < this._prevTime % glitchLineSecond) {
+    if (Math.round(callback) % GLITCH_LINE_SECOND < this._prevTime % GLITCH_LINE_SECOND) {
       this._glitchLinePos = this.setGlitchLinePos()
     }
 
@@ -182,7 +168,7 @@ export default class GlitchImage {
       }
     }
 
-    if (Math.round(callback) % glitchLineSecond <= glitchLineSecond) {
+    if (Math.round(callback) % GLITCH_LINE_SECOND <= GLITCH_LINE_SECOND) {
       const barCount = Math.floor(Math.random() * this._canvas.height)
       for (let i = 0; i < barCount; i++) {
         this.createGlitchLine(this._glitchLinePos.x, i * this._glitchLinePos.y)
@@ -193,6 +179,9 @@ export default class GlitchImage {
     requestAnimationFrame(this.rect.bind(this))
   }
 
+  /**
+  * glitchのノイズを生成
+  */
   createNoise(x: number, y:number) {
     const ctx = this._ctx
     const noise =
@@ -215,6 +204,9 @@ export default class GlitchImage {
     }
   }
 
+  /**
+   * glitchのラインの生成
+   */
   private createGlitchLine(x: number, y: number) {
     const ctx = this._ctx
     let barHeight = 1
